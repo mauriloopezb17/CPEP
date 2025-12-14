@@ -26,10 +26,7 @@ const AIPanel = ({ isOpen, onClose }) => {
     setMessages(prev => [...prev, userMessage]);
     setInputValue('');
 
-    setMessages(prev => [...prev, userMessage]);
-    setInputValue('');
-
-    // simular respuesta de ia mock
+    // simula la ia trucha
     setTimeout(() => {
       const aiMessage = {
         id: Date.now() + 1,
@@ -50,12 +47,12 @@ const AIPanel = ({ isOpen, onClose }) => {
   return (
     <div 
       className={`
-        fixed top-20 right-4 bottom-16 w-[400px] bg-[#F3F4F6] dark:bg-[#1A1D21] border border-gray-200 dark:border-gray-800 shadow-2xl z-40 rounded-2xl
+        fixed top-20 right-4 bottom-16 w-[400px] bg-gray-100 dark:bg-[#1A1D21] border border-gray-200 dark:border-gray-800 shadow-2xl z-50 rounded-2xl
         flex flex-col transition-transform duration-300 ease-in-out overflow-hidden font-sans
         ${isOpen ? 'translate-x-0' : 'translate-x-[120%]'}
       `}
     >
-      {/* encabezado */}
+      {/* header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-[#1A1D21]">
         <h3 className="text-gray-700 dark:text-gray-200 font-semibold font-sans">Preguntale a la IA...</h3>
         <button 
@@ -66,7 +63,7 @@ const AIPanel = ({ isOpen, onClose }) => {
         </button>
       </div>
 
-      {/* area de chat */}
+      {/* chat */}
       <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
         {messages.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-center opacity-50">
@@ -105,7 +102,7 @@ const AIPanel = ({ isOpen, onClose }) => {
         )}
       </div>
 
-      {/* area de input */}
+      {/* input */}
       <div className="p-4 bg-white dark:bg-[#1A1D21] border-t border-gray-200 dark:border-gray-700">
         <div className="flex flex-col gap-2">
           <textarea
@@ -119,7 +116,7 @@ const AIPanel = ({ isOpen, onClose }) => {
             <button
               onClick={handleSend}
               disabled={!inputValue.trim()}
-              className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+              className="bg-blue-600 dark:bg-[#FCD34D] hover:bg-blue-700 dark:hover:bg-yellow-400 disabled:bg-gray-300 dark:disabled:bg-gray-700 disabled:text-gray-500 text-white dark:text-black px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
             >
               Enviar <Send size={14} />
             </button>

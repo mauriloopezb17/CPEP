@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
 import Footer from './components/Footer';
-import ConstitutionCard from './components/ConstitutionCard';
+import ConstitutionFeed from './components/ConstitutionFeed';
 import AIButton from './components/AIButton';
 import Sidebar from './components/Sidebar';
 import SettingsMenu from './components/SettingsMenu';
@@ -10,46 +10,97 @@ import cpeData from './assets/cpe.json';
 import './App.css';
 
 function App() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  // detecta si es cel al inicio
+  const isMobileInitial = typeof window !== 'undefined' ? window.innerWidth < 768 : false;
+
+  const [isSidebarOpen, setIsSidebarOpen] = useState(!isMobileInitial);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [isAIPanelOpen, setIsAIPanelOpen] = useState(true);
+  const [isAIPanelOpen, setIsAIPanelOpen] = useState(!isMobileInitial);
   const [fontSize, setFontSize] = useState('medium');
   const [theme, setTheme] = useState('light');
   
-  // estado inicial sin seleccion pantalla de bienvenida
-  const [selectedArticle, setSelectedArticle] = useState(null);
+  // pa la navegacion
+  const [highlightedArticle, setHighlightedArticle] = useState(null); // el q esta activo en el sidebar
+  const [scrollTargetArticle, setScrollTargetArticle] = useState(null); // a donde scrollear
 
-  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
-  const toggleSettings = () => setIsSettingsOpen(!isSettingsOpen);
-  const toggleAIPanel = () => setIsAIPanelOpen(!isAIPanelOpen);
+  const isMobile = () => typeof window !== 'undefined' && window.innerWidth < 768;
 
-  const handleArticleSelect = (article) => {
-    setSelectedArticle(article);
-    // la barra lateral se queda abierta al seleccionar como se pidio
+  const toggleSidebar = () => {
+    if (isMobile() && !isSidebarOpen) {
+       setIsAIPanelOpen(false);
+    }
+    setIsSidebarOpen(!isSidebarOpen);
   };
 
-  // logica de modo oscuro implementacion basica aplicada al contenedor principalmente
+  const toggleSettings = () => {
+    if (isMobile() && !isSettingsOpen) {
+      setIsSidebarOpen(false);
+      setIsAIPanelOpen(false);
+    }
+    setIsSettingsOpen(!isSettingsOpen);
+  };
+  
+  const toggleAIPanel = () => {
+    if (isMobile() && !isAIPanelOpen) {
+      setIsSidebarOpen(false);
+      setIsSettingsOpen(false);
+    }
+    setIsAIPanelOpen(!isAIPanelOpen);
+  };
+
+  // cuando le das al sidebar
+  const handleSidebarSelect = (article) => {
+    setHighlightedArticle(article);
+    setScrollTargetArticle(article);
+  };
+
+  // cuando el scroll spy pilla articulo nuevo
+  const handleArticleVisible = (article) => {
+    // solo el highlight, sin forzar scroll
+    setHighlightedArticle(article);
+  };
+
+  // modo oscuro y eye care
   useEffect(() => {
+    // limpia clases viejas
+    document.body.classList.remove('dark', 'eye-care');
+
     if (theme === 'dark') {
       document.body.classList.add('dark');
-    } else {
-      document.body.classList.remove('dark');
+    } else if (theme === 'eye-care') {
+      document.body.classList.add('eye-care');
     }
   }, [theme]);
 
-  // fondo dinamico basado en el tema
-  const bgClass = theme === 'dark' ? 'bg-[#0a0a0a]' : 'bg-[#E5ECF5]';
+  // fondo segun el tema
+  const bgClass = {
+    dark: 'bg-[#0a0a0a]',
+    light: 'bg-[#E5ECF5]',
+    'eye-care': 'bg-[#F0EAD6]' // Eggshell / Parchment color
+  }[theme] || 'bg-[#E5ECF5]';
 
   return (
-    <div className={`flex flex-col min-h-screen transition-colors duration-300 ${bgClass} overflow-hidden`}>
+    <div className={`flex flex-col h-screen transition-colors duration-300 ${bgClass} overflow-hidden`}>
+      {/* Mobile Backdrop */}
+      <div 
+        className={`fixed inset-0 bg-black/20 backdrop-blur-sm z-40 transition-opacity duration-300 md:hidden ${
+          (isSidebarOpen || isAIPanelOpen || isSettingsOpen) ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        }`}
+        onClick={() => {
+          setIsSidebarOpen(false);
+          setIsAIPanelOpen(false);
+          setIsSettingsOpen(false);
+        }}
+      />
+
       <Header onMenuClick={toggleSidebar} onSettingsClick={toggleSettings} />
       
       <Sidebar 
         isOpen={isSidebarOpen} 
         onClose={() => setIsSidebarOpen(false)} 
         data={cpeData}
-        onSelectArticle={handleArticleSelect}
-        selectedArticle={selectedArticle}
+        onSelectArticle={handleSidebarSelect}
+        selectedArticle={highlightedArticle}
       />
 
       <SettingsMenu 
@@ -63,14 +114,21 @@ function App() {
 
       <AIPanel isOpen={isAIPanelOpen} onClose={() => setIsAIPanelOpen(false)} />
 
-      {/* contenedor principal */}
-      <div 
-        className="flex-grow flex items-center justify-center p-4 relative"
-      >
-        <ConstitutionCard article={selectedArticle} fontSize={fontSize} />
+      {/* contenedor principal con su propio scroll */}
+      <div className="flex-grow flex justify-center overflow-hidden relative">
+        <div 
+          className="w-full max-w-5xl h-full overflow-y-auto custom-scrollbar p-4 scroll-smooth"
+        >
+          <ConstitutionFeed 
+            data={cpeData} 
+            scrollTarget={scrollTargetArticle}
+            onArticleVisible={handleArticleVisible}
+            fontSize={fontSize} 
+          />
+        </div>
         
-        {/* ocultar boton de ia cuando el panel esta abierto para evitar solapamiento */}
-        <div className={`transition-opacity duration-300 ${isAIPanelOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+        {/* esconde el boton ia si el panel esta abierto pa q no estorbe */}
+        <div className={`fixed bottom-20 right-8 transition-opacity duration-300 ${isAIPanelOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
           <AIButton onClick={toggleAIPanel} />
         </div>
       </div>

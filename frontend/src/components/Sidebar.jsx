@@ -1,12 +1,14 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useRef } from 'react';
 import { ChevronDown, ChevronRight, X, Book, FileText, Bookmark } from 'lucide-react';
 
 const Sidebar = ({ isOpen, onClose, data, onSelectArticle, selectedArticle }) => {
-  // procesar datos planos en una estructura de arbol
+  const isInteracting = useRef(false);
+
+  // vuelve arbol la data plana
   const treeData = useMemo(() => {
     const tree = [];
     
-    // ayudante para encontrar o crear un nodo en una lista
+    // helper pa buscar o crear nodo
     const findOrCreate = (list, key, label, type) => {
       let node = list.find(item => item.label === label);
       if (!node) {
@@ -16,50 +18,105 @@ const Sidebar = ({ isOpen, onClose, data, onSelectArticle, selectedArticle }) =>
       return node;
     };
 
-    data.forEach(item => {
-      if (item.tipo !== 'articulo') return; // omitir introduccion por ahora si no esta estructurada identicamente
-
-      // 1. parte
-      let currentLevel = tree;
-      if (item.parte_nom) {
-        const parteNode = findOrCreate(currentLevel, item.parte_nom, item.parte_nom, 'PART');
-        currentLevel = parteNode.children;
+    data.forEach((item, index) => {
+      // genera id unico de navegacion
+      // para articulos, disposiciones y la intro
+      let navId;
+      if (item.tipo === 'introduccion') {
+        navId = `intro-${index}`;
+      } else if (item.art_num === 398) {
+        // excepcion para 398 q esta duplicado
+        navId = `art-${item.art_num}-${index}`;
+      } else {
+         navId = item.art_num ? `art-${item.art_num}` : `disp-${index}`;
       }
+      
+      // mete el id al item pa q el treenode sepa
+      item.navId = navId;
 
-      // 2. titulo
-      if (item.titulo_nom) {
-        const tituloNode = findOrCreate(currentLevel, item.titulo_nom, item.titulo_nom, 'TITLE');
-        currentLevel = tituloNode.children;
+      if (item.tipo === 'introduccion') {
+         // maneja la intro
+         let introRoot = findOrCreate(tree, 'root-intro', 'Presentación', 'ROOT_INTRO');
+         
+         introRoot.children.push({
+           key: navId,
+           label: item.titulo,
+           subLabel: item.subtitulo,
+           type: 'ARTICLE',
+           data: item
+         });
+
+      } else if (item.tipo === 'articulo') {
+        // logica normal de jerarquia
+        
+        // 1. parte
+        let currentLevel = tree;
+        if (item.parte_nom) {
+          const parteNode = findOrCreate(currentLevel, item.parte_nom, item.parte_nom, 'PART');
+          currentLevel = parteNode.children;
+        }
+
+        // 2. titulo
+        if (item.titulo_nom) {
+          const tituloNode = findOrCreate(currentLevel, item.titulo_nom, item.titulo_nom, 'TITLE');
+          currentLevel = tituloNode.children;
+        }
+
+        // 3. capitulo
+        if (item.capitulo_nom) {
+          const capituloNode = findOrCreate(currentLevel, item.capitulo_nom, item.capitulo_nom, 'CHAPTER');
+          currentLevel = capituloNode.children;
+        }
+
+        // 4. seccion opcional
+        if (item.seccion_nom) {
+          const seccionNode = findOrCreate(currentLevel, item.seccion_nom, item.seccion_nom, 'SECTION');
+          currentLevel = seccionNode.children;
+        }
+
+        // 5. articulo hoja
+        currentLevel.push({
+          key: navId,
+          label: `Artículo ${item.art_num}°`,
+          subLabel: item.nombre_juridico, // descripcion corta
+          type: 'ARTICLE',
+          data: item, // almacenar datos completos del articulo
+        });
+
+      } else if (item.tipo === 'disposición') {
+        // maneja disposiciones
+        // todo a la carpeta disposiciones
+        let dispRoot = findOrCreate(tree, 'root-disposiciones', 'Disposiciones', 'ROOT_DISP');
+        
+        // subgrupo por tipo
+        let typeNode = findOrCreate(dispRoot.children, item.disposicion, item.disposicion, 'DISP_TYPE');
+        
+        typeNode.children.push({
+          key: navId,
+          label: item.parte ? `${item.disposicion} ${item.parte}` : item.disposicion,
+          subLabel: item.nombre_juridico,
+          type: 'ARTICLE', // tipo articulo pa q sea clickeable
+          data: item
+        });
       }
-
-      // 3. capitulo
-      if (item.capitulo_nom) {
-        const capituloNode = findOrCreate(currentLevel, item.capitulo_nom, item.capitulo_nom, 'CHAPTER');
-        currentLevel = capituloNode.children;
-      }
-
-      // 4. seccion opcional
-      if (item.seccion_nom) {
-        const seccionNode = findOrCreate(currentLevel, item.seccion_nom, item.seccion_nom, 'SECTION');
-        currentLevel = seccionNode.children;
-      }
-
-      // 5. articulo hoja
-      currentLevel.push({
-        key: `art-${item.art_num}`,
-        label: `Artículo ${item.art_num}°`,
-        subLabel: item.nombre_juridico, // descripcion corta
-        type: 'ARTICLE',
-        data: item, // almacenar datos completos del articulo
-      });
     });
 
     return tree;
   }, [data]);
 
+  // scroll al item seleccionado
+  React.useEffect(() => {
+    if (selectedArticle && selectedArticle.navId && !isInteracting.current) {
+      const element = document.getElementById(`sidebar-article-${selectedArticle.navId}`);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
+  }, [selectedArticle]);
+
   return (
     <>
-      {/* panel de barra lateral flotante */}
+      {/* barra lateral flotante */}
       <div 
         className={`
           fixed top-20 left-4 bottom-16 w-96 bg-white dark:bg-[#1A1D21] rounded-2xl shadow-2xl 
@@ -67,8 +124,12 @@ const Sidebar = ({ isOpen, onClose, data, onSelectArticle, selectedArticle }) =>
           transition-all duration-300 ease-in-out
           ${isOpen ? 'translate-x-0' : '-translate-x-[120%]'}
         `}
+        onMouseEnter={() => isInteracting.current = true}
+        onMouseLeave={() => isInteracting.current = false}
+        onTouchStart={() => isInteracting.current = true}
+        onTouchEnd={() => isInteracting.current = false}
       >
-        {/* encabezado */}
+        {/* header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-[#1A1D21]">
           <h3 className="text-gray-700 dark:text-gray-200 font-semibold font-sans">Índice</h3>
           <button 
@@ -97,12 +158,12 @@ const Sidebar = ({ isOpen, onClose, data, onSelectArticle, selectedArticle }) =>
   );
 };
 
-// componente recursivo de nodo de arbol
+// componente recursivo del arbol
 const TreeNode = ({ node, onSelect, selectedArticle, level }) => {
   const isLeaf = node.type === 'ARTICLE';
 
   // verificar si este nodo esta seleccionado para hojas o contiene la seleccion para carpetas
-  const isSelfSelected = isLeaf && selectedArticle && selectedArticle.art_num === node.data.art_num;
+  const isSelfSelected = isLeaf && selectedArticle && selectedArticle.navId === node.data.navId;
   
   // verificacion recursiva para ruta activa
   const hasSelectedChild = useMemo(() => {
@@ -110,7 +171,7 @@ const TreeNode = ({ node, onSelect, selectedArticle, level }) => {
     const checkChildren = (children) => {
       return children.some(child => {
         if (child.type === 'ARTICLE') {
-          return selectedArticle && child.data.art_num === selectedArticle.art_num;
+          return selectedArticle && child.data.navId === selectedArticle.navId;
         }
         return checkChildren(child.children);
       });
@@ -137,10 +198,10 @@ const TreeNode = ({ node, onSelect, selectedArticle, level }) => {
     }
   };
 
-  // estilo de sangria basado en nivel
+  // sangria segun nivel
   const paddingLeft = `${level * 12 + 12}px`;
   
-  // estilo de ruta activa
+  // estilo si esta activo
   const isActivePath = hasSelectedChild || isSelfSelected;
   const activeUserStyle = isSelfSelected 
     ? 'bg-blue-600 dark:bg-[#FCD34D] text-white dark:text-black shadow-md font-bold' 
@@ -151,6 +212,7 @@ const TreeNode = ({ node, onSelect, selectedArticle, level }) => {
   return (
     <div className="mb-1">
       <div 
+        id={isLeaf ? `sidebar-article-${node.data.navId}` : undefined}
         onClick={handleClick}
         className={`
           group flex items-start gap-2 p-2 rounded-lg cursor-pointer transition-all duration-200
@@ -158,7 +220,7 @@ const TreeNode = ({ node, onSelect, selectedArticle, level }) => {
         `}
         style={{ paddingLeft }}
       >
-        {/* icono chevron */}
+        {/* icono flechita */}
         <div className={`mt-0.5 flex-shrink-0 ${
           isSelfSelected 
             ? 'text-white dark:text-black' 
