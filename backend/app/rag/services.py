@@ -1,4 +1,5 @@
 from app.rag.prompts import build_reformulation_prompt, build_answer_prompt
+from app.rag.sorting import merge_sort
 
 
 class ConversationalRAG:
@@ -45,6 +46,8 @@ class ConversationalRAG:
                 source_item["contenido"] = doc.strip()
 
             sources.append(source_item)
+
+            sources = merge_sort(sources)
 
         return sources
 

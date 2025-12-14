@@ -3,6 +3,6 @@ POST http://localhost:3000/api/rag/ask
 Content-Type: application/json
 
 {
-  "question": "¿Cuántos pueblos indígenas hay en el país?"
+  "question": "¿Qué dice el artículo 398 de la constitución?"
 }
 
