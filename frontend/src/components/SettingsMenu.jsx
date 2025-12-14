@@ -11,7 +11,7 @@ const SettingsMenu = ({ isOpen, onClose, fontSize, setFontSize, theme, setTheme 
   ];
   return (
     <>
-      {/* fondo invisible pa cerrar si clickeas fuera */}
+      {/* fondo invisible para cerrar si clickeas fuera */}
       <div 
         className="fixed inset-0 z-40 bg-transparent" 
         onClick={onClose}

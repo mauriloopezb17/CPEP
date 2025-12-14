@@ -68,7 +68,7 @@ const ConstitutionFeed = ({ data, scrollTarget, onArticleVisible, fontSize }) =>
     return () => observer.disconnect();
   }, [data, onArticleVisible]);
 
-  // agrupa pa meter separadores
+  // agrupa para meter separadores
   const renderContent = () => {
     const content = [];
     let lastParte = '';
@@ -172,7 +172,7 @@ const ConstitutionFeed = ({ data, scrollTarget, onArticleVisible, fontSize }) =>
           }
 
       } else if (item.tipo === 'disposición') {
-          // separador pa disposiciones
+          // separador para disposiciones
           if (item.disposicion && item.disposicion !== lastDisposicionGroup) {
              content.push(
               <div key={`disp-group-${navId}`} className="w-full md:w-[900px] mx-auto mb-12 mt-24 text-center">
@@ -186,7 +186,7 @@ const ConstitutionFeed = ({ data, scrollTarget, onArticleVisible, fontSize }) =>
           }
       }
 
-      // renderiza tarjeta (comun pa ambos)
+      // renderiza tarjeta (comun para ambos)
       content.push(
         <div key={navId} data-nav-id={navId} ref={(el) => (itemRefs.current[navId] = el)}>
           <ConstitutionCard 

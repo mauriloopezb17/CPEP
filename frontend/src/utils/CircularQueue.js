@@ -19,8 +19,6 @@ class CircularQueue {
    */
   enqueue(item) {
     if (this.isFull()) {
-      // If full, we effectively dequeue the front to make space
-      // by moving front forward.
       this.front = (this.front + 1) % this.capacity;
       this.size--; 
     }

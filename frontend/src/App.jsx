@@ -19,7 +19,7 @@ function App() {
   const [fontSize, setFontSize] = useState('medium');
   const [theme, setTheme] = useState('light');
   
-  // pa la navegacion
+  // para la navegacion
   const [highlightedArticle, setHighlightedArticle] = useState(null); // el q esta activo en el sidebar
   const [scrollTargetArticle, setScrollTargetArticle] = useState(null); // a donde scrollear
 
@@ -112,7 +112,12 @@ function App() {
         setTheme={setTheme}
       />
 
-      <AIPanel isOpen={isAIPanelOpen} onClose={() => setIsAIPanelOpen(false)} />
+      <AIPanel 
+        isOpen={isAIPanelOpen} 
+        onClose={() => setIsAIPanelOpen(false)} 
+        data={cpeData}
+        onNavigateToArticle={handleSidebarSelect}
+      />
 
       {/* contenedor principal con su propio scroll */}
       <div className="flex-grow flex justify-center overflow-hidden relative">
@@ -127,7 +132,7 @@ function App() {
           />
         </div>
         
-        {/* esconde el boton ia si el panel esta abierto pa q no estorbe */}
+        {/* esconde el boton ia si el panel esta abierto para q no estorbe */}
         <div className={`fixed bottom-20 right-8 transition-opacity duration-300 ${isAIPanelOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
           <AIButton onClick={toggleAIPanel} />
         </div>

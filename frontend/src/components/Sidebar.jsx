@@ -8,7 +8,7 @@ const Sidebar = ({ isOpen, onClose, data, onSelectArticle, selectedArticle }) =>
   const treeData = useMemo(() => {
     const tree = [];
     
-    // helper pa buscar o crear nodo
+    // helper para buscar o crear nodo
     const findOrCreate = (list, key, label, type) => {
       let node = list.find(item => item.label === label);
       if (!node) {
@@ -31,7 +31,7 @@ const Sidebar = ({ isOpen, onClose, data, onSelectArticle, selectedArticle }) =>
          navId = item.art_num ? `art-${item.art_num}` : `disp-${index}`;
       }
       
-      // mete el id al item pa q el treenode sepa
+      // mete el id al item para q el treenode sepa
       item.navId = navId;
 
       if (item.tipo === 'introduccion') {
@@ -95,7 +95,7 @@ const Sidebar = ({ isOpen, onClose, data, onSelectArticle, selectedArticle }) =>
           key: navId,
           label: item.parte ? `${item.disposicion} ${item.parte}` : item.disposicion,
           subLabel: item.nombre_juridico,
-          type: 'ARTICLE', // tipo articulo pa q sea clickeable
+          type: 'ARTICLE', // tipo articulo para q sea clickeable
           data: item
         });
       }
