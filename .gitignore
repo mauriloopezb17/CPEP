@@ -26,3 +26,6 @@ pnpm-debug.log*
 .env
 .venv/
 __pycache__/
+# agrego esto pq inicializar el back con my venv de python 3.11 creo archivos raros
+venv/
+
