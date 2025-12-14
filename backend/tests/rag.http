@@ -3,5 +3,6 @@ POST http://localhost:3000/api/rag/ask
 Content-Type: application/json
 
 {
-  "question": "¿Qué dice la constitución respecto a los pueblo indígenas?"
+  "question": "¿Cuántos pueblos indígenas hay en el país?"
 }
+

@@ -12,15 +12,19 @@ class GeminiEmbeddingFunction:
         self.model = model or settings.GOOGLE_EMBEDDING_MODEL
 
     def __call__(self, input):
-        result = gemini_client.models.embed_content(
-            model=self.model,
-            contents=input,
-            config=types.EmbedContentConfig(
-                task_type="retrieval_document",
-                output_dimensionality=3072,
-            ),
-        )
-        return [emb.values for emb in result.embeddings]
+        try:
+            result = gemini_client.models.embed_content(
+                model=self.model,
+                contents=input,
+                config=types.EmbedContentConfig(
+                    task_type="retrieval_document",
+                    output_dimensionality=3072,
+                ),
+            )
+            return [emb.values for emb in result.embeddings]
+        except Exception as e:
+            print(f"Error generando embedding: {e}")
+            raise e
 
     def embed_query(self, input):
         result = gemini_client.models.embed_content(
