@@ -3,5 +3,5 @@ POST http://localhost:3000/api/rag/ask
 Content-Type: application/json
 
 {
-  "question": "¿Qué dice la introduccion de la Constitución Política del Estado boliviano?"
+  "question": "¿Qué dice la constitución respecto a los pueblo indígenas?"
 }
