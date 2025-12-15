@@ -7,7 +7,7 @@ import PdfFile from '../assets/Libro Constitución CC.pdf';
 
 const Header = ({ onMenuClick, onSettingsClick }) => {
   return (
-    <header className="bg-gray-100 dark:bg-black border-b border-gray-300 dark:border-gray-800 px-4 py-2 flex items-center justify-between sticky top-0 z-50 transition-colors duration-300">
+    <header className="bg-gray-100 dark:bg-black border-b border-gray-300 dark:border-gray-800 px-4 py-2 flex items-center justify-between fixed top-0 left-0 w-full z-50 transition-colors duration-300">
       <div className="flex items-center gap-4">
         <button onClick={onMenuClick} className="p-2 hover:bg-gray-200 dark:hover:bg-gray-900 rounded-lg text-blue-600 dark:text-[#FCD34D] transition-colors">
           <Menu size={28} strokeWidth={2.5} />

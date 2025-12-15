@@ -11,11 +11,11 @@ import './App.css';
 
 function App() {
   // detecta si es cel al inicio
-  const isMobileInitial = typeof window !== 'undefined' ? window.innerWidth < 768 : false;
+  //const isMobileInitial = typeof window !== 'undefined' ? window.innerWidth < 768 : false;
 
-  const [isSidebarOpen, setIsSidebarOpen] = useState(!isMobileInitial);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [isAIPanelOpen, setIsAIPanelOpen] = useState(!isMobileInitial);
+  const [isAIPanelOpen, setIsAIPanelOpen] = useState(false);
   const [fontSize, setFontSize] = useState('medium');
   const [theme, setTheme] = useState('light');
   
@@ -80,7 +80,7 @@ function App() {
   }[theme] || 'bg-[#E5ECF5]';
 
   return (
-    <div className={`flex flex-col h-screen transition-colors duration-300 ${bgClass} overflow-hidden`}>
+    <div className={`flex flex-col h-[100dvh] transition-colors duration-300 ${bgClass} overflow-hidden`}>
       {/* Mobile Backdrop */}
       <div 
         className={`fixed inset-0 bg-black/20 backdrop-blur-sm z-40 transition-opacity duration-300 md:hidden ${
@@ -120,7 +120,7 @@ function App() {
       />
 
       {/* contenedor principal con su propio scroll */}
-      <div className="flex-grow flex justify-center overflow-hidden relative">
+      <div className="flex-grow flex justify-center overflow-hidden relative pt-16">
         <div 
           className="w-full max-w-5xl h-full overflow-y-auto custom-scrollbar p-4 scroll-smooth"
         >

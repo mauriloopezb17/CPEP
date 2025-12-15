@@ -106,6 +106,7 @@ const AIPanel = ({ isOpen, onClose, data, onNavigateToArticle }) => {
       const history = contextQueue.current.getItems();
       
       // Llamar a la API
+      const response = await AiService.askAi(currentQuestion, history);
       const { answer, sources } = typeof response === 'object' ? response : { answer: response, sources: [] };
 
       // Detectar errores del backend basados en el texto
@@ -120,7 +121,7 @@ const AIPanel = ({ isOpen, onClose, data, onNavigateToArticle }) => {
         id: aiMessageId,
         text: '',
         sender: 'ai',
-        sources: sources,
+        sources: [],
         isError: isBackendError
       };
 
@@ -135,6 +136,13 @@ const AIPanel = ({ isOpen, onClose, data, onNavigateToArticle }) => {
           msg.id === aiMessageId ? { ...msg, text: currentText } : msg
         ));
         await new Promise(resolve => setTimeout(resolve, 1));
+      }
+
+      // Mostrar fuentes al terminar de escribir
+      if (sources && sources.length > 0) {
+        setMessages(prev => prev.map(msg => 
+          msg.id === aiMessageId ? { ...msg, sources: sources } : msg
+        ));
       }
       
       // Actualizar el contexto con la nueva interacción
@@ -171,7 +179,7 @@ const AIPanel = ({ isOpen, onClose, data, onNavigateToArticle }) => {
   return (
     <div 
       className={`
-        fixed top-20 right-4 bottom-16 w-[400px] bg-gray-100 dark:bg-[#1A1D21] border border-gray-200 dark:border-gray-800 shadow-2xl z-50 rounded-2xl
+        fixed top-20 right-4 bottom-16 w-[calc(100vw-2rem)] md:w-[400px] bg-gray-100 dark:bg-[#1A1D21] border border-gray-200 dark:border-gray-800 shadow-2xl z-50 rounded-2xl
         flex flex-col transition-transform duration-300 ease-in-out overflow-hidden font-sans
         ${isOpen ? 'translate-x-0' : 'translate-x-[120%]'}
       `}
