@@ -18,7 +18,7 @@ const AiService = {
         chat_history: historyText || null
       };
 
-      const response = await fetch('http://localhost:3000/api/rag/ask', {
+      const response = await fetch('http://100.113.154.56:3000/api/rag/ask', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
