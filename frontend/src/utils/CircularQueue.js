@@ -1,8 +1,3 @@
-/**
- * A Circular Queue data structure with a fixed size.
- * When the queue is full, adding a new item overwrites the oldest item.
- * Useful for maintaining a fixed-size history of chat context.
- */
 class CircularQueue {
   constructor(capacity = 5) {
     this.capacity = capacity;
@@ -12,11 +7,6 @@ class CircularQueue {
     this.size = 0;
   }
 
-  /**
-   * Adds an item to the queue.
-   * If full, it overwrites the oldest item (advances front).
-   * @param {any} item - The item to add.
-   */
   enqueue(item) {
     if (this.isFull()) {
       this.front = (this.front + 1) % this.capacity;
@@ -28,11 +18,6 @@ class CircularQueue {
     this.size++;
   }
 
-  /**
-   * Returns all items in the queue in generic order (oldest to newest).
-   * Does NOT clear the queue.
-   * @returns {Array} Array of items.
-   */
   getItems() {
     if (this.isEmpty()) {
       return [];
@@ -47,25 +32,14 @@ class CircularQueue {
     return items;
   }
 
-  /**
-   * Checks if the queue is empty.
-   * @returns {boolean}
-   */
   isEmpty() {
     return this.size === 0;
   }
 
-  /**
-   * Checks if the queue is full.
-   * @returns {boolean}
-   */
   isFull() {
     return this.size === this.capacity;
   }
 
-  /**
-   * Clears the queue.
-   */
   clear() {
     this.front = 0;
     this.rear = 0;
