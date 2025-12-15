@@ -1,5 +1,5 @@
 ### Pregunta simple al RAG
-POST http://localhost:3000/api/rag/ask
+POST http://100.95.161.42:3000/api/rag/ask
 Content-Type: application/json
 
 {
