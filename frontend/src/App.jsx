@@ -6,6 +6,7 @@ import AIButton from './components/AIButton';
 import Sidebar from './components/Sidebar';
 import SettingsMenu from './components/SettingsMenu';
 import AIPanel from './components/AIPanel';
+import OnboardingTour from './components/OnboardingTour';
 import cpeData from './assets/cpe.json';
 import './App.css';
 
@@ -139,6 +140,7 @@ function App() {
       </div>
       
       <Footer />
+      <OnboardingTour />
     </div>
   );
 }

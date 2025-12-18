@@ -169,6 +169,31 @@ const AIPanel = ({ isOpen, onClose, data, onNavigateToArticle }) => {
     }
   };
 
+  const [placeholderIndex, setPlaceholderIndex] = useState(0);
+  const [placeholderOpacity, setPlaceholderOpacity] = useState(1);
+  const placeholders = [
+    "¿Que articulos hablan de los derechos de los niños?",
+    "¿Que dice la constitución sobre la religión?",
+    "¿Donde se mencionan a los pueblos originarios?",
+    "¿Cuales son los deberes de los ciudadanos?",
+    "¿Que es el Estado Plurinacional?"
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // Iniciar fade out
+      setPlaceholderOpacity(0);
+      
+      // Cambiar texto a mitad del intervalo de fade
+      setTimeout(() => {
+        setPlaceholderIndex((prev) => (prev + 1) % placeholders.length);
+        setPlaceholderOpacity(1);
+      }, 500); // 500ms para el fade out
+      
+    }, 4000);
+    return () => clearInterval(interval);
+  }, []);
+
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -278,14 +303,31 @@ const AIPanel = ({ isOpen, onClose, data, onNavigateToArticle }) => {
         )}
       </div>
 
+      {/* Franja de advertencia */}
+      <div className="px-4 py-1.5 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700 flex items-center justify-center gap-1.5">
+        <span className="text-xs text-gray-400 dark:text-gray-500">ⓘ</span>
+        <p className="text-[10px] text-gray-500 dark:text-gray-400 text-left">
+          La IA puede cometer errores, es recomendable revisar toda la información
+        </p>
+      </div>
+
       {/* pa escribir */}
-      <div className="p-4 bg-white dark:bg-[#1A1D21] border-t border-gray-200 dark:border-gray-700">
+      <div className="p-4 bg-white dark:bg-[#1A1D21] border-t border-gray-200 dark:border-gray-700 relative">
         <div className="flex flex-col gap-2">
+          {/* Capa para el placeholder con fade */}
+          {!inputValue && !isLoading && (
+            <div 
+              className="absolute top-7 left-7 pointer-events-none text-sm text-gray-400 transition-opacity duration-500 ease-in-out"
+              style={{ opacity: placeholderOpacity }}
+            >
+              {placeholders[placeholderIndex]}
+            </div>
+          )}
           <textarea
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder={isLoading ? "Esperando respuesta..." : "Escribe tu pregunta aquí..."}
+            placeholder={isLoading ? "Esperando respuesta..." : ""}
             disabled={isLoading}
             className="w-full p-3 bg-white dark:bg-black border border-gray-200 dark:border-gray-700 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/50 dark:focus:ring-[#FCD34D]/50 text-sm text-gray-800 dark:text-gray-200 h-24 custom-scrollbar disabled:opacity-50 disabled:cursor-not-allowed"
           />

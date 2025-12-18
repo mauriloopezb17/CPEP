@@ -81,7 +81,7 @@ const ConstitutionCard = forwardRef(({ article, fontSize = 'medium' }, ref) => {
             </h1>
           )}
           
-          <p className={`text-gray-800 dark:text-gray-300 leading-relaxed italic font-merriweather font-light transition-all duration-300 text-justify ${currentSize.content}`}>
+          <p className={`text-gray-800 dark:text-gray-300 leading-relaxed italic font-merriweather font-light transition-all duration-300 text-justify whitespace-pre-line ${currentSize.content}`}>
             “{article.contenido}”
           </p>
         </div>

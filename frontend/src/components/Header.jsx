@@ -9,7 +9,7 @@ const Header = ({ onMenuClick, onSettingsClick }) => {
   return (
     <header className="bg-gray-100 dark:bg-black border-b border-gray-300 dark:border-gray-800 px-4 py-2 flex items-center justify-between fixed top-0 left-0 w-full z-50 transition-colors duration-300">
       <div className="flex items-center gap-4">
-        <button onClick={onMenuClick} className="p-2 hover:bg-gray-200 dark:hover:bg-gray-900 rounded-lg text-blue-600 dark:text-[#FCD34D] transition-colors">
+        <button id="tour-index-button" onClick={onMenuClick} className="p-2 hover:bg-gray-200 dark:hover:bg-gray-900 rounded-lg text-blue-600 dark:text-[#FCD34D] transition-colors">
           <Menu size={28} strokeWidth={2.5} />
         </button>
         {/* logo cel */}
@@ -31,13 +31,14 @@ const Header = ({ onMenuClick, onSettingsClick }) => {
 
       <div className="flex items-center gap-2">
         <button 
+          id="tour-pdf-button"
           onClick={() => window.open(PdfFile, '_blank')} 
           className="p-2 hover:bg-gray-200 dark:hover:bg-gray-900 rounded-lg text-blue-500 dark:text-[#FCD34D] transition-colors"
           title="Ver PDF Original"
         >
           <FileText size={28} strokeWidth={2.5} />
         </button>
-        <button onClick={onSettingsClick} className="p-2 hover:bg-gray-200 dark:hover:bg-gray-900 rounded-lg text-blue-500 dark:text-[#FCD34D] transition-colors">
+        <button id="tour-settings-button" onClick={onSettingsClick} className="p-2 hover:bg-gray-200 dark:hover:bg-gray-900 rounded-lg text-blue-500 dark:text-[#FCD34D] transition-colors">
           <Settings size={28} strokeWidth={2.5} />
         </button>
       </div>
