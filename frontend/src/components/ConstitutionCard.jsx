@@ -2,6 +2,72 @@ import Escudo from '../assets/Escudo_de_Bolivia.svg.png';
 
 import React, { forwardRef } from 'react';
 
+const RenderContent = ({ content, currentSize }) => {
+  if (!content) return null;
+
+  // si es un string (formato viejo), lo sacamos como antes
+  if (typeof content === 'string') {
+    return (
+      <p className={`text-gray-800 dark:text-gray-300 leading-relaxed italic font-merriweather font-light transition-all duration-300 text-justify whitespace-pre-line ${currentSize.content}`}>
+        {content}
+      </p>
+    );
+  }
+
+  // si es un array (formato nuevo)
+  if (Array.isArray(content)) {
+    return content.map((item, index) => (
+      <RenderContent key={index} content={item} currentSize={currentSize} />
+    ));
+  }
+
+  // si es un objeto de contenido
+  const { tipo, texto, estilo } = content;
+
+  if (tipo === 'texto') {
+    return texto.map((t, i) => (
+      <p key={i} className={`text-gray-800 dark:text-gray-300 leading-relaxed italic font-merriweather font-light transition-all duration-300 text-justify whitespace-pre-line mb-4 ${currentSize.content}`}>
+        {typeof t === 'string' ? t : <RenderContent content={t} currentSize={currentSize} />}
+      </p>
+    ));
+  }
+
+  if (tipo === 'ordered' || tipo === 'unordered') {
+    const Tag = tipo === 'ordered' ? 'ol' : 'ul';
+    const listStyleClass = tipo === 'ordered' ? {
+      romanos: 'list-[upper-roman]',
+      alfabeticos: 'list-[lower-alpha]',
+      numeros: 'list-decimal'
+    }[estilo] || 'list-decimal' : 'list-disc';
+
+    // agrupamos los items para que las listas anidadas no tengan su propio marcador
+    const groups = [];
+    texto.forEach(item => {
+      if (typeof item === 'string' || groups.length === 0) {
+        groups.push([item]);
+      } else {
+        groups[groups.length - 1].push(item);
+      }
+    });
+
+    return (
+      <Tag className={`${listStyleClass} ml-8 mb-4 space-y-2 text-gray-800 dark:text-gray-300 leading-relaxed italic font-merriweather font-light transition-all duration-300 text-justify ${currentSize.content}`}>
+        {groups.map((group, i) => (
+          <li key={i} className="pl-2">
+            {group.map((item, j) => (
+              <React.Fragment key={j}>
+                {typeof item === 'string' ? item : <RenderContent content={item} currentSize={currentSize} />}
+              </React.Fragment>
+            ))}
+          </li>
+        ))}
+      </Tag>
+    );
+  }
+
+  return null;
+};
+
 const ConstitutionCard = forwardRef(({ article, fontSize = 'medium' }, ref) => {
   // tamaños de letra
   const textSizeClasses = {
@@ -81,9 +147,9 @@ const ConstitutionCard = forwardRef(({ article, fontSize = 'medium' }, ref) => {
             </h1>
           )}
           
-          <p className={`text-gray-800 dark:text-gray-300 leading-relaxed italic font-merriweather font-light transition-all duration-300 text-justify whitespace-pre-line ${currentSize.content}`}>
-            “{article.contenido}”
-          </p>
+          <div className="content-wrapper">
+            <RenderContent content={article.contenido} currentSize={currentSize} />
+          </div>
         </div>
       </div>
     </div>
