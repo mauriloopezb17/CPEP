@@ -15,7 +15,7 @@ const ConstitutionFeed = ({ data, scrollTarget, onArticleVisible, fontSize }) =>
       
       const element = itemRefs.current[navId];
       if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     } else {
       // scroll al principio si no hay target
