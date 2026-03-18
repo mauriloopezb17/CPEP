@@ -119,7 +119,7 @@ const Sidebar = ({ isOpen, onClose, data, onSelectArticle, selectedArticle }) =>
       {/* barra lateral flotante */}
       <div 
         className={`
-          fixed top-20 left-4 bottom-16 w-96 bg-white dark:bg-[#1A1D21] rounded-2xl shadow-2xl 
+          fixed top-20 left-4 bottom-16 w-[calc(100vw-2rem)] md:w-96 bg-white dark:bg-[#1A1D21] rounded-2xl shadow-2xl 
           flex flex-col z-50 font-sans border border-gray-100 dark:border-gray-800 overflow-hidden
           transition-all duration-300 ease-in-out
           ${isOpen ? 'translate-x-0' : '-translate-x-[120%]'}

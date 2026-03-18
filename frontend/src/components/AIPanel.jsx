@@ -23,12 +23,27 @@ const AIPanel = ({ isOpen, onClose, data, onNavigateToArticle }) => {
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
+  const scrollContainerRef = useRef(null);
+  const isAutoScrolling = useRef(true);
   
   // Mantener la cola de contexto entre renders
   const contextQueue = useRef(new CircularQueue(5));
 
+  const handleScroll = () => {
+    if (!scrollContainerRef.current) return;
+    const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current;
+    const isAtBottom = scrollHeight - scrollTop - clientHeight < 20;
+    isAutoScrolling.current = isAtBottom;
+  };
+
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (isAutoScrolling.current) {
+      if (scrollContainerRef.current) {
+        scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
+      } else {
+        messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
+      }
+    }
   };
 
   useEffect(() => {
@@ -89,6 +104,8 @@ const AIPanel = ({ isOpen, onClose, data, onNavigateToArticle }) => {
 
   const handleSend = async () => {
     if (!inputValue.trim() || isLoading) return;
+    
+    isAutoScrolling.current = true;
 
     const currentQuestion = inputValue.trim();
     const userMessage = {
@@ -129,14 +146,27 @@ const AIPanel = ({ isOpen, onClose, data, onNavigateToArticle }) => {
       setMessages(prev => [...prev, aiMessage]);
       setIsLoading(false);
 
-      let currentText = '';
-      for (let i = 0; i < answer.length; i++) {
-        currentText += answer[i];
-        setMessages(prev => prev.map(msg => 
-          msg.id === aiMessageId ? { ...msg, text: currentText } : msg
-        ));
-        await new Promise(resolve => setTimeout(resolve, 1));
-      }
+      const duration = 2500; // 2.5 seconds
+      const startTime = performance.now();
+      
+      await new Promise(resolve => {
+        const animate = (currentTime) => {
+          const elapsed = currentTime - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+          const charsToShow = Math.floor(progress * answer.length);
+          
+          setMessages(prev => prev.map(msg => 
+            msg.id === aiMessageId ? { ...msg, text: answer.slice(0, charsToShow) } : msg
+          ));
+
+          if (progress < 1) {
+            requestAnimationFrame(animate);
+          } else {
+            resolve();
+          }
+        };
+        requestAnimationFrame(animate);
+      });
 
       // Mostrar fuentes al terminar de escribir
       if (sources && sources.length > 0) {
@@ -204,7 +234,7 @@ const AIPanel = ({ isOpen, onClose, data, onNavigateToArticle }) => {
   return (
     <div 
       className={`
-        fixed top-20 right-4 bottom-16 w-[calc(100vw-2rem)] md:w-[400px] bg-gray-100 dark:bg-[#1A1D21] border border-gray-200 dark:border-gray-800 shadow-2xl z-50 rounded-2xl
+        fixed top-20 right-4 h-[calc(100dvh-6rem)] md:h-[calc(100vh-9rem)] w-[calc(100vw-2rem)] md:w-[400px] bg-gray-100 dark:bg-[#1A1D21] border border-gray-200 dark:border-gray-800 shadow-2xl z-50 rounded-2xl
         flex flex-col transition-transform duration-300 ease-in-out overflow-hidden font-sans
         ${isOpen ? 'translate-x-0' : 'translate-x-[120%]'}
       `}
@@ -221,7 +251,13 @@ const AIPanel = ({ isOpen, onClose, data, onNavigateToArticle }) => {
       </div>
 
       {/* los msjs */}
-      <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
+      <div 
+        ref={scrollContainerRef}
+        onScroll={handleScroll}
+        onTouchMove={() => { isAutoScrolling.current = false; }}
+        onWheel={() => { isAutoScrolling.current = false; }}
+        className="flex-1 overflow-y-auto p-4 custom-scrollbar"
+      >
         {messages.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-center opacity-50">
             <Sparkles size={48} className="text-blue-400 dark:text-[#FCD34D] mb-4" />
@@ -317,7 +353,7 @@ const AIPanel = ({ isOpen, onClose, data, onNavigateToArticle }) => {
           {/* Capa para el placeholder con fade */}
           {!inputValue && !isLoading && (
             <div 
-              className="absolute top-7 left-7 pointer-events-none text-sm text-gray-400 transition-opacity duration-500 ease-in-out"
+              className="absolute top-7 left-7 right-7 pointer-events-none text-sm text-gray-400 transition-opacity duration-500 ease-in-out"
               style={{ opacity: placeholderOpacity }}
             >
               {placeholders[placeholderIndex]}
@@ -327,6 +363,13 @@ const AIPanel = ({ isOpen, onClose, data, onNavigateToArticle }) => {
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleKeyDown}
+            onFocus={() => {
+              setTimeout(() => {
+                if (scrollContainerRef.current) {
+                  scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
+                }
+              }, 300);
+            }}
             placeholder={isLoading ? "Esperando respuesta..." : ""}
             disabled={isLoading}
             className="w-full p-3 bg-white dark:bg-black border border-gray-200 dark:border-gray-700 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/50 dark:focus:ring-[#FCD34D]/50 text-sm text-gray-800 dark:text-gray-200 h-24 custom-scrollbar disabled:opacity-50 disabled:cursor-not-allowed"
