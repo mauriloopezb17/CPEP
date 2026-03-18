@@ -11,7 +11,7 @@ class ChatGemini:
         self,
         model: str | None = None,
         temperature: float = 0.3,
-        max_output_tokens: int = 2048,
+        max_output_tokens: int = 10000,
     ):
         self.model = model or settings.GOOGLE_LLM_MODEL
         self.temperature = temperature

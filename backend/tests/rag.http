@@ -1,8 +1,7 @@
 ### Pregunta simple al RAG
-POST http://100.95.161.42:3000/api/rag/ask
+POST http://127.0.0.1:8000/api/rag/ask
 Content-Type: application/json
 
 {
-  "question": "¿Qué dice el artículo 398 de la constitución?"
+  "question": "¿pueden despedir a una embarazada?"
 }
-

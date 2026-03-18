@@ -4,7 +4,7 @@ Dada la siguiente conversación y una pregunta de seguimiento,
 reformula la pregunta de seguimiento para que sea una pregunta independiente, clara y completa,
 manteniendo su significado original y en el mismo idioma (español).
 
-No respondas la pregunta. Solo devuelve la pregunta reformulada.
+INSTRUCCIÓN CRÍTICA: No respondas la pregunta. NO agregues frases introductorias como "Aquí tienes" o "La pregunta es". Devuelve ÚNICAMENTE la pregunta reformulada exacta.
 
 Historial de chat:
 {chat_history}
@@ -35,6 +35,7 @@ en el contexto delimitado por <context>.
 Debes:
 - Responder en el idioma solicitado
 - Citar explícitamente artículos, disposiciones o secciones usadas
+- Como máximo debes responder con 500 palabras
 
 Si la información no es suficiente o no se encuentra en el contexto, responde exactamente:
 "No tengo información suficiente en la Constitución para responder a esta pregunta."
